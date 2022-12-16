@@ -8,7 +8,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:youtube_player_iframe/src/iframe_api/src/functions/video_information.dart';
 import 'package:youtube_player_iframe/src/player_value.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:youtube_player_iframe_web/youtube_player_iframe_web.dart';
 
 import 'youtube_player_event_handler.dart';
 
@@ -22,7 +21,6 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
   YoutubePlayerController({
     this.params = const YoutubePlayerParams(),
   }) {
-    registerYoutubePlayerIframeWeb();
     _eventHandler = YoutubePlayerEventHandler(this);
     javaScriptChannels = _eventHandler.javascriptChannels;
   }
@@ -57,6 +55,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
 
   /// Defines player parameters for the youtube player.
   final YoutubePlayerParams params;
+  late bool _isPlaying;
 
   Completer<WebViewController> _webViewControllerCompleter = Completer();
 
@@ -283,6 +282,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
 
   /// MetaData for the currently loaded or cued video.
   YoutubeMetaData get metadata => _value.metaData;
+  bool get isPlaying => _isPlaying;
 
   /// Creates new [YoutubePlayerValue] with assigned parameters and overrides
   /// the old one.
@@ -462,16 +462,19 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
 
   @override
   Future<void> pauseVideo() {
+    _isPlaying = false;
     return _run('pauseVideo');
   }
 
   @override
   Future<void> playVideo() {
+    _isPlaying = true;
     return _run('playVideo');
   }
 
   @override
   Future<void> playVideoAt(int index) {
+    _isPlaying = true;
     return _eval('player.playVideoAt($index)');
   }
 
@@ -492,6 +495,7 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
 
   @override
   Future<void> stopVideo() {
+    _isPlaying = false;
     return _run('stopVideo');
   }
 
